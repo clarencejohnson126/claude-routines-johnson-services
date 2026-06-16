@@ -21,8 +21,7 @@ import ssl
 import sys
 import time
 from datetime import datetime, timezone
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+from email.message import EmailMessage
 from email.utils import formataddr, formatdate, make_msgid
 from pathlib import Path
 
@@ -143,7 +142,9 @@ def build_html(firma: str, region: str, pitch: str, tip: str) -> str:
     body = BODY.format(firma=firma, region=region, pitch=pitch).strip()
     paras = "".join(f'<p style="margin:0 0 12px;">{p.strip().replace(chr(10), "<br>")}</p>' for p in body.split("\n\n") if p.strip())
     return (
-        '<!doctype html><html><body style="margin:0;background:#F5F7FA;">'
+        '<!doctype html><html lang="de"><head><meta charset="utf-8">'
+        '<meta name="viewport" content="width=device-width,initial-scale=1"></head>'
+        '<body style="margin:0;background:#F5F7FA;">'
         '<div style="max-width:560px;margin:0 auto;padding:24px;'
         "font-family:'Plus Jakarta Sans',system-ui,'Segoe UI',Roboto,Arial,sans-serif;"
         'color:#1F2937;font-size:15px;line-height:1.55;">'
@@ -152,21 +153,22 @@ def build_html(firma: str, region: str, pitch: str, tip: str) -> str:
     )
 
 
-def build_msg(r: dict, sender: str) -> MIMEMultipart:
+def build_msg(r: dict, sender: str) -> EmailMessage:
     pitch = PITCH.get(r.get("zielgruppe", ""), DEFAULT_PITCH)
     firma, region = r.get("firma", ""), r.get("region", "")
     tip = _pick_tip()
     text_body = BODY.format(firma=firma, region=region, pitch=pitch)
     text_full = f"{text_body}\nPS: {DISCOUNT_LINE} für neue Partner. Praxis-Tipp: {tip}\n"
-    msg = MIMEMultipart("alternative")
+    msg = EmailMessage()
     msg["Subject"] = SUBJECT.format(region=region)
     msg["From"] = formataddr(("Johnson Services", sender))
     msg["To"] = r["email"]
     msg["Reply-To"] = sender
     msg["Date"] = formatdate(localtime=True)
     msg["Message-ID"] = make_msgid(domain="johnson-services.de")
-    msg.attach(MIMEText(text_full, "plain", "utf-8"))
-    msg.attach(MIMEText(build_html(firma, region, pitch, tip), "html", "utf-8"))
+    # Moderne, maximal kompatible Multipart-Alternative (quoted-printable, sauberer fuer Mobile-Clients)
+    msg.set_content(text_full)
+    msg.add_alternative(build_html(firma, region, pitch, tip), subtype="html")
     return msg
 
 

@@ -36,7 +36,8 @@ QUERIES = [
     ("Facility Management", "Facility Management"),
     ("Wohnungsbaugesellschaft", "Wohnungsbaugesellschaft"),
 ]
-REGIONS = ["Mannheim", "Heidelberg", "Ludwigshafen", "Viernheim", "Weinheim", "Schwetzingen", "Speyer", "Worms", "Darmstadt"]
+REGIONS = ["Mannheim", "Heidelberg", "Ludwigshafen", "Viernheim", "Weinheim", "Schwetzingen", "Speyer", "Worms", "Darmstadt",
+           "Frankenthal", "Neustadt an der Weinstraße", "Hockenheim", "Bensheim", "Wiesloch", "Leimen", "Sinsheim", "Bad Dürkheim", "Lampertheim"]
 CORE = {"Hausverwaltung", "Immobilienmakler", "Nachlass/Erbrecht", "Facility Management", "Wohnungsbaugesellschaft"}
 
 PITCH = {

@@ -1,0 +1,7 @@
+new_tab("https://www.golocal.de/unternehmen/")
+wait_for_load()
+print("URL:", page_info().get("url"))
+print("TEXT:", js("document.body.innerText.replace(/\\n+/g,' | ').slice(0,500)"))
+print("LINKS:", js("JSON.stringify(Array.from(document.querySelectorAll('a')).map(function(a){return (a.innerText||'').trim()+' || '+a.href;}).filter(function(x){return /eintrag|unternehmen|firma|hinzu|erstell|anleg|claim|bernehm|kostenlos|gewerbe|profil/i.test(x);}).slice(0,15))"))
+print("BUTTONS:", js("JSON.stringify(Array.from(document.querySelectorAll('button, input[type=submit]')).map(function(b){return (b.innerText||b.value||'').trim();}).filter(function(t){return t;}).slice(0,12))"))
+print("INPUTS:", js("JSON.stringify(Array.from(document.querySelectorAll('input,select,textarea')).map(function(e){return {name:e.name,type:e.type,ph:e.placeholder};}).filter(function(e){return e.type!=='hidden';}).slice(0,20))"))

@@ -1,0 +1,6 @@
+print("BUTTONS:", js("JSON.stringify(Array.from(document.querySelectorAll('button, input[type=submit]')).map(function(b){return b.tagName+':'+(b.type||'')+':'+((b.innerText||b.value||'').trim()).slice(0,30);}))"))
+clicked = js("var b=document.querySelector('button[type=submit], input[type=submit]') || Array.from(document.querySelectorAll('button')).find(function(x){return /registrier/i.test(x.innerText||'');}); if(b){b.click(); 'clicked:'+((b.innerText||b.value||'').trim());} else {'KEIN Submit-Button';}")
+print("CLICK:", clicked)
+wait_for_load()
+print("URL:", page_info().get("url"))
+print("TEXT:", js("document.body.innerText.replace(/\\s+/g,' ').slice(0,400)"))

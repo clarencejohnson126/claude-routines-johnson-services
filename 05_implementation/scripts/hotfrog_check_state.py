@@ -1,0 +1,4 @@
+ensure_real_tab()
+print("URL:", page_info().get("url"))
+print("TEXT:", js("document.body.innerText.replace(/\\n+/g,' | ').slice(0,500)"))
+print("SHOT:", capture_screenshot())

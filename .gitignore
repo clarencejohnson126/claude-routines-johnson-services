@@ -1,0 +1,20 @@
+# Secrets — NEVER commit
+.env
+*.env
+!.env.example
+platform_accounts.txt
+
+# Lead data (PII) — never commit (ganze Ordner, auch .md mit Anfragen/Empfängern)
+07_outputs/lead_lists/
+07_outputs/email_drafts/
+*.db
+*.sqlite
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS
+.DS_Store

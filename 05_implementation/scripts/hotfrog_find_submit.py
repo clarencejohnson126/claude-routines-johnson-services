@@ -1,0 +1,5 @@
+ensure_real_tab()
+js("window.scrollTo(0, document.body.scrollHeight);")
+js("new Promise(function(r){setTimeout(r,800);})")
+print("ALL-BTNS:", js("JSON.stringify(Array.from(document.querySelectorAll('button,input[type=submit],a[role=button]')).map(function(b){var r=b.getBoundingClientRect();return {t:(b.innerText||b.value||'').trim().slice(0,30),x:Math.round(r.left+r.width/2),y:Math.round(r.top+r.height/2),vis:r.width>0};}).filter(function(o){return o.t && o.vis;}).slice(0,15))"))
+print("SHOT:", capture_screenshot())

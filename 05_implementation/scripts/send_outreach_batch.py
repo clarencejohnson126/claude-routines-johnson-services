@@ -21,6 +21,7 @@ import ssl
 import sys
 import time
 from datetime import datetime, timezone
+from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formataddr, formatdate, make_msgid
 from pathlib import Path
@@ -107,15 +108,65 @@ def new_log_path() -> Path:
     return LEAD_DIR / f"outreach_sent_log_{ts}.csv"
 
 
-def build_msg(r: dict, sender: str) -> MIMEText:
+# Rotierende Praxis-Tipps (B2B, Sie-Form, KEINE erfundenen Zahlen). Pro Lauf rotiert.
+TIPS = [
+    "Vor der Räumung Zählerstände notieren und Schlüssel sowie wichtige Dokumente separat sichern, dann läuft die Übergabe reibungslos.",
+    "Bei Nachlass- und Sterbefällen Wertgegenstände und persönliche Unterlagen vor der Entrümpelung getrennt sammeln.",
+    "Eine besenreine Übergabe spart vor der Neuvermietung die separate Endreinigung.",
+    "Sperrige Möbel vorab kurz fotografieren, so lässt sich der Räumungsaufwand schon vor dem Termin verlässlich einschätzen.",
+    "Bei leerstehenden Einheiten gilt: je früher die Räumung terminiert ist, desto kürzer der Mietausfall.",
+    "Messie- und Verwahrlosungsfälle planen wir diskret, ohne Aufsehen und mit fester Preiszusage.",
+]
+DISCOUNT_LINE = "10% Rabatt auf jedes Angebot"  # vom Inhaber freigegeben (2026-06-16)
+
+
+def _pick_tip() -> str:
+    return TIPS[datetime.now().timetuple().tm_yday % len(TIPS)]
+
+
+def value_block_html(tip: str) -> str:
+    """Gebrandeter Mehrwert-Block (Johnson-Blau #0066CC, Inline-CSS fuer E-Mail-Clients)."""
+    return (
+        '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:22px 0;">'
+        '<tr><td style="background:#E6F0FA;border-radius:4px;padding:20px 22px;">'
+        '<div style="font-size:12px;font-weight:700;letter-spacing:.5px;color:#0066CC;text-transform:uppercase;">Praxis-Tipp</div>'
+        f'<div style="font-size:15px;color:#1F2937;margin:6px 0 16px;">{tip}</div>'
+        f'<div style="font-size:16px;font-weight:800;color:#0F172A;">{DISCOUNT_LINE}</div>'
+        '<div style="font-size:13px;color:#374151;margin:2px 0 14px;">für neue Partner aus Hausverwaltung, Verwaltung und Nachlass. Erwähnen Sie einfach diese E-Mail.</div>'
+        '<a href="https://johnson-services.de/" style="display:inline-block;background:#0066CC;color:#ffffff;text-decoration:none;font-weight:600;font-size:14px;padding:11px 18px;border-radius:4px;">Kostenloses Festpreis-Angebot anfordern</a>'
+        '<div style="font-size:13px;color:#16A34A;margin-top:14px;">&#10003; Festpreis &nbsp; &#10003; besenrein &nbsp; &#10003; kurzfristige Termine</div>'
+        '</td></tr></table>'
+    )
+
+
+def build_html(firma: str, region: str, pitch: str, tip: str) -> str:
+    body = BODY.format(firma=firma, region=region, pitch=pitch).strip()
+    paras = "".join(f'<p style="margin:0 0 12px;">{p.strip().replace(chr(10), "<br>")}</p>' for p in body.split("\n\n") if p.strip())
+    return (
+        '<!doctype html><html><body style="margin:0;background:#F5F7FA;">'
+        '<div style="max-width:560px;margin:0 auto;padding:24px;'
+        "font-family:'Plus Jakarta Sans',system-ui,'Segoe UI',Roboto,Arial,sans-serif;"
+        'color:#1F2937;font-size:15px;line-height:1.55;">'
+        f'{paras}{value_block_html(tip)}'
+        '</div></body></html>'
+    )
+
+
+def build_msg(r: dict, sender: str) -> MIMEMultipart:
     pitch = PITCH.get(r.get("zielgruppe", ""), DEFAULT_PITCH)
-    msg = MIMEText(BODY.format(firma=r.get("firma", ""), region=r.get("region", ""), pitch=pitch), "plain", "utf-8")
-    msg["Subject"] = SUBJECT.format(region=r.get("region", ""))
+    firma, region = r.get("firma", ""), r.get("region", "")
+    tip = _pick_tip()
+    text_body = BODY.format(firma=firma, region=region, pitch=pitch)
+    text_full = f"{text_body}\nPS: {DISCOUNT_LINE} für neue Partner. Praxis-Tipp: {tip}\n"
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = SUBJECT.format(region=region)
     msg["From"] = formataddr(("Johnson Services", sender))
     msg["To"] = r["email"]
     msg["Reply-To"] = sender
     msg["Date"] = formatdate(localtime=True)
     msg["Message-ID"] = make_msgid(domain="johnson-services.de")
+    msg.attach(MIMEText(text_full, "plain", "utf-8"))
+    msg.attach(MIMEText(build_html(firma, region, pitch, tip), "html", "utf-8"))
     return msg
 
 

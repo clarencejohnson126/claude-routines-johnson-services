@@ -17,7 +17,7 @@ Spec-getriebene Wachstums-Engine für **Johnson Services** (Entrümpelung, Haush
 
 ### Cloud Routine: B2B Outreach (Johnson Services)
 
-**Was die Routine tut:** Findet neue B2B-Leads (Hausverwaltungen, Immobilienmakler, Seniorenheime/Pflege, Nachlass/Erbrecht, Facility Management, Wohnungsbau) in der Rhein-Neckar-Region via Google Places API, dedupliziert gegen Bestand + alle bereits kontaktierten Adressen, und verschickt personalisierte deutsche Kaltakquise-Mails (Sie-Form) über IONOS SMTP.
+**Was die Routine tut:** Findet neue B2B-Leads (Hausverwaltungen, Immobilienmakler, Seniorenheime/Pflege, Nachlass/Erbrecht, Facility Management, Wohnungsbau) in 18 Rhein-Neckar-Regionen via Google Places API, dedupliziert gegen Bestand + alle bereits kontaktierten Adressen, und verschickt personalisierte deutsche Kaltakquise-Mails (Sie-Form) über IONOS SMTP. Jede Mail ist Multipart (Text + HTML) mit einem gebrandeten **Mehrwert-Block** (rotierender Praxis-Tipp + **10% Rabatt auf jedes Angebot**, Johnson-Blau #0066CC) als HTML, **kein Bild-Anhang** (B2B-Zustellbarkeit).
 
 **Cadence:** Dienstag + Donnerstag, 09:00 Uhr Europe/Berlin.
 
